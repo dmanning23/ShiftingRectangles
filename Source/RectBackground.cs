@@ -5,6 +5,7 @@ using System.Diagnostics;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Content;
+using GameTimer;
 
 namespace ShiftingRectangles
 {
@@ -13,7 +14,7 @@ namespace ShiftingRectangles
 	/// </summary>
 	public class RectBackground
 	{
-		#region Member Variables
+		#region Fields
 
 		/// <summary>
 		/// The dark blocks in teh background
@@ -26,6 +27,17 @@ namespace ShiftingRectangles
 		private List<BackgroundBlock> m_ForegroundBlocks;
 
 		/// <summary>
+		/// 1x1 pixel that creates the shape.
+		/// </summary>
+		private Texture2D m_Pixel = null;
+
+		static private Random g_Random = new Random(DateTime.Now.Millisecond);
+
+		#endregion //Fields
+
+		#region Properties
+
+		/// <summary>
 		/// the color of the background bricks
 		/// </summary>
 		public Color BackgroundColor { get; set; }
@@ -34,8 +46,6 @@ namespace ShiftingRectangles
 		/// the color of the foreground bricks, should be the same as clear color
 		/// </summary>
 		public Color ForegroundColor { get; set; }
-
-		static private Random g_Random = new Random(DateTime.Now.Millisecond);
 
 		/// <summary>
 		/// The rectangles will float around in this area until they float out and are replaced
@@ -52,11 +62,13 @@ namespace ShiftingRectangles
 		public float MaxAbsSpeed { get; set; }
 
 		/// <summary>
-		/// 1x1 pixel that creates the shape.
+		/// Add scrolling effects to the rect background
 		/// </summary>
-		private Texture2D m_Pixel = null;
+		public Vector2 Velocity { get; set; }
 
-		#endregion //Member Variables
+		GameClock _timer = new GameClock();
+
+		#endregion //Properties
 
 		#region Initialization
 
@@ -88,6 +100,8 @@ namespace ShiftingRectangles
 			MaxBlockHeight = maxHeight;
 			MinAbsSpeed = minAbsSpeed;
 			MaxAbsSpeed = maxAbsSpeed;
+
+			Velocity = Vector2.Zero;
 
 			//MaxNumBlocks = 80;
 			//MinBlockWidth = 30;
@@ -137,8 +151,9 @@ namespace ShiftingRectangles
 		/// </summary>
 		public void Update(GameTime gameTime)
 		{
-			UpdateRectangles(m_BackgroundBlocks, gameTime);
-			UpdateRectangles(m_ForegroundBlocks, gameTime);
+			_timer.Update(gameTime);
+			UpdateRectangles(m_BackgroundBlocks);
+			UpdateRectangles(m_ForegroundBlocks);
 		}
 
 		/// <summary>
@@ -180,12 +195,13 @@ namespace ShiftingRectangles
 		/// update a list of rectanlges
 		/// </summary>
 		/// <param name="rRectangleList">the list to update</param>
-		private void UpdateRectangles(List<BackgroundBlock> rRectangleList, GameTime CurrentTime)
+		private void UpdateRectangles(List<BackgroundBlock> rRectangleList)
 		{
 			//update rectangle positions
 			for (int i = 0; i < rRectangleList.Count; i++)
 			{
 				BackgroundBlock myBlock = rRectangleList[i];
+				myBlock.Update(_timer, Velocity);
 
 				//if rectangle position is outside screen, wrap around the border
 				if (myBlock.Rect.Top >= Border.Bottom)

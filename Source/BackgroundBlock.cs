@@ -68,11 +68,12 @@ namespace ShiftingRectangles
 			Direction = dir;
 		}
 
-		public void Update(GameClock CurrentTime)
+		public void Update(GameClock CurrentTime, Vector2 velocity)
 		{
-			//add the direction to the location
-			_rect.X += (int)(Direction.X * CurrentTime.TimeDelta);
-			_rect.Y += (int)(Direction.Y * CurrentTime.TimeDelta);
+			//add the direction + velocty to the location
+			Vector2 finalDir = velocity + Direction;
+			_rect.X += (int)(finalDir.X * CurrentTime.TimeDelta);
+			_rect.Y += (int)(finalDir.Y * CurrentTime.TimeDelta);
 		}
 
 		#endregion //Methods
