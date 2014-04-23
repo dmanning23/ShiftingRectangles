@@ -79,12 +79,12 @@ namespace ShiftingRectangles
 			Color background,
 			Color foreground,
 			int maxBlocks = 80, 
-			int minWidth = 50, 
-			int maxWidth = 128, 
+			int minWidth = 64, 
+			int maxWidth = 256, 
 			int minHeight = 50, 
 			int maxHeight = 128, 
-			float minAbsSpeed = 60, 
-			float maxAbsSpeed = 80)
+			float minAbsSpeed = 30, 
+			float maxAbsSpeed = 50)
 		{
 			m_BackgroundBlocks = new List<BackgroundBlock>();
 			m_ForegroundBlocks = new List<BackgroundBlock>();
@@ -222,7 +222,7 @@ namespace ShiftingRectangles
 
 		private Vector2 RandomSpeed()
 		{
-			Vector2 dir = g_Random.NextVector2(MinAbsSpeed, MaxAbsSpeed, MinAbsSpeed, MaxAbsSpeed);
+			Vector2 dir = g_Random.NextVector2(MinAbsSpeed, MaxAbsSpeed, MinAbsSpeed * 0.5f, MaxAbsSpeed * 0.5f); //use half speed for y dir
 
 			//flip the x direction?
 			if ((g_Random.Next() % 2) == 0)

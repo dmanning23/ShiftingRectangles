@@ -5,6 +5,7 @@ using System.Diagnostics;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Content;
+using RectangleFLib;
 
 namespace ShiftingRectangles
 {
@@ -15,7 +16,7 @@ namespace ShiftingRectangles
 	{
 		#region Fields
 
-		private Rectangle _rect;
+		private RectangleF _rect;
 
 		#endregion //Fields
 
@@ -64,7 +65,7 @@ namespace ShiftingRectangles
 		/// <param name="dir"></param>
 		public BackgroundBlock(Rectangle rect, Vector2 dir)
 		{
-			_rect = rect;
+			_rect = new RectangleF(rect);
 			Direction = dir;
 		}
 
@@ -72,8 +73,8 @@ namespace ShiftingRectangles
 		{
 			//add the direction + velocty to the location
 			Vector2 finalDir = velocity + Direction;
-			_rect.X += (int)(finalDir.X * CurrentTime.TimeDelta);
-			_rect.Y += (int)(finalDir.Y * CurrentTime.TimeDelta);
+			_rect.X += finalDir.X * CurrentTime.TimeDelta;
+			_rect.Y += finalDir.Y * CurrentTime.TimeDelta;
 		}
 
 		#endregion //Methods
