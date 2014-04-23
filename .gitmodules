@@ -1,3 +1,12 @@
 [submodule "externals/MonoGame"]
 	path = externals/MonoGame
 	url = git@github.com:dmanning23/MonoGame.git
+[submodule "externals/GameTimer"]
+	path = externals/GameTimer
+	url = git@github.com:dmanning23/GameTimer.git
+[submodule "externals/RandomExtensions"]
+	path = externals/RandomExtensions
+	url = git@github.com:dmanning23/RandomExtensions.git
+[submodule "externals/Vector2Extensions"]
+	path = externals/Vector2Extensions
+	url = git@github.com:dmanning23/Vector2Extensions.git

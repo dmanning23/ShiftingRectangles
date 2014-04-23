@@ -1,43 +1,18 @@
 ﻿using System;
+using Vector2Extensions;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Diagnostics;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Content;
-using MenuBuddy;
-using ResolutionBuddy;
 
-namespace RoboJets
+namespace ShiftingRectangles
 {
 	/// <summary>
-	/// this screen sits behind all other screens and has a pattern of shifting blocks
+	/// this is a pattern of shifting blocks
 	/// </summary>
-	public class BlockScreen : GameScreen
+	public class RectBackground
 	{
-		/// <summary>
-		/// little struct for managing the rectangles and their movement
-		/// </summary>
-		private class BackgroundBlock
-		{
-			public Rectangle m_Rect;
-			public float m_fPosition;
-			public float m_fDirection;
-			
-			public Rectangle Rect
-			{
-				get { return m_Rect; }
-			}
-			
-			public BackgroundBlock()
-			{
-				m_Rect = new Rectangle();
-				m_fPosition = 0.0f;
-				m_fDirection = 0.0f;
-			}
-		}
-
 		#region Member Variables
 
 		/// <summary>
@@ -50,15 +25,36 @@ namespace RoboJets
 		/// </summary>
 		private List<BackgroundBlock> m_ForegroundBlocks;
 
-		private int m_iMaxNumBlocks;
-		private int m_iMinBlockWidth;
-		private int m_iMaxBlockWidth;
-		private int m_iMinBlockHeight;
-		private int m_iMaxBlockHeight;
+		/// <summary>
+		/// the color of the background bricks
+		/// </summary>
+		public Color BackgroundColor { get; set; }
+
+		/// <summary>
+		/// the color of the foreground bricks, should be the same as clear color
+		/// </summary>
+		public Color ForegroundColor { get; set; }
 
 		static private Random g_Random = new Random(DateTime.Now.Millisecond);
 
-		Rectangle m_View;
+		/// <summary>
+		/// The rectangles will float around in this area until they float out and are replaced
+		/// </summary>
+		public Rectangle Border { get; set; }
+
+		public int MaxNumBlocks { get; set; }
+		public int MinBlockWidth { get; set; }
+		public int MaxBlockWidth { get; set; }
+		public int MinBlockHeight { get; set; }
+		public int MaxBlockHeight { get; set; }
+
+		public float MinAbsSpeed { get; set; }
+		public float MaxAbsSpeed { get; set; }
+
+		/// <summary>
+		/// 1x1 pixel that creates the shape.
+		/// </summary>
+		private Texture2D m_Pixel = null;
 
 		#endregion //Member Variables
 
@@ -67,19 +63,39 @@ namespace RoboJets
 		/// <summary>
 		/// Constructor.
 		/// </summary>
-		public BlockScreen()
+		public RectBackground(Rectangle border,
+			int maxBlocks, 
+			int minWidth, 
+			int maxWidth, 
+			int minHeight, 
+			int maxHeight, 
+			float minAbsSpeed, 
+			float maxAbsSpeed,
+			Color background,
+			Color foreground)
 		{
-			TransitionOnTime = TimeSpan.FromSeconds(0.5);
-			TransitionOffTime = TimeSpan.FromSeconds(0.5);
-
 			m_BackgroundBlocks = new List<BackgroundBlock>();
 			m_ForegroundBlocks = new List<BackgroundBlock>();
+			BackgroundColor = background;
+			ForegroundColor = foreground;
 
-			m_iMaxNumBlocks = 80;
-			m_iMinBlockWidth = 30;
-			m_iMaxBlockWidth = 100;
-			m_iMinBlockHeight = 20;
-			m_iMaxBlockHeight = 80;
+			Border = border;
+
+			MaxNumBlocks = maxBlocks;
+			MinBlockWidth = minWidth;
+			MaxBlockWidth = maxWidth;
+			MinBlockHeight = minHeight;
+			MaxBlockHeight = maxHeight;
+			MinAbsSpeed = minAbsSpeed;
+			MaxAbsSpeed = maxAbsSpeed;
+
+			//MaxNumBlocks = 80;
+			//MinBlockWidth = 30;
+			//MaxBlockWidth = 100;
+			//MinBlockHeight = 20;
+			//MaxBlockHeight = 80;
+			//MinSpeed = 30;
+			//MaxSpeed = 40;
 		}
 
 		/// <summary>
@@ -89,35 +105,23 @@ namespace RoboJets
 		/// used the shared ContentManager provided by the Game class, the content
 		/// would remain loaded forever.
 		/// </summary>
-		public override void LoadContent()
+		public void LoadContent(GraphicsDevice graphicsDevice)
 		{
-			base.LoadContent();
-
 			//do this here, becase the screen rect isnt set until after base.LoadContent is called
 
-			m_iMinBlockWidth = ScreenRect.Width / 14;
-			m_iMaxBlockWidth = ScreenRect.Width / 10;
-			m_iMinBlockHeight = ScreenRect.Height / 14;
-			m_iMaxBlockHeight = ScreenRect.Height / 10;
-
-			m_View = Resolution.ScreenArea;
+			// Create the pixel texture.
+			m_Pixel = new Texture2D(graphicsDevice, 1, 1, false, SurfaceFormat.Color);
+			m_Pixel.SetData<Color>(new Color[] { Color.White });
 
 			//add a bunch of blocks
-			for (int i = 0; i < m_iMaxNumBlocks; i++)
+			for (int i = 0; i < MaxNumBlocks; i++)
 			{
 				m_BackgroundBlocks.Add(RandomBlock());
 			}
-			for (int i = 0; i < m_iMaxNumBlocks; i++)
+			for (int i = 0; i < MaxNumBlocks; i++)
 			{
 				m_ForegroundBlocks.Add(RandomBlock());
 			}
-		}
-
-		/// <summary>
-		/// Unloads graphics content for this screen.
-		/// </summary>
-		public override void UnloadContent()
-		{
 		}
 
 		#endregion
@@ -131,10 +135,8 @@ namespace RoboJets
 		/// coveredByOtherScreen parameter to false in order to stop the base
 		/// Update method wanting to transition off.
 		/// </summary>
-		public override void Update(GameTime gameTime, bool otherScreenHasFocus, bool coveredByOtherScreen)
+		public void Update(GameTime gameTime)
 		{
-			base.Update(gameTime, otherScreenHasFocus, false);
-
 			UpdateRectangles(m_BackgroundBlocks, gameTime);
 			UpdateRectangles(m_ForegroundBlocks, gameTime);
 		}
@@ -142,19 +144,13 @@ namespace RoboJets
 		/// <summary>
 		/// Draws the background screen.
 		/// </summary>
-		public override void Draw(GameTime gameTime)
+		public void Draw(SpriteBatch spriteBatch, GameTime gameTime)
 		{
-			SpriteBatch spriteBatch = ScreenManager.SpriteBatch;
-
-			ScreenManager.SpriteBatchBegin();
-
 			//draw the dark rectangles
-			DrawRectangles(m_BackgroundBlocks, spriteBatch, new Color(0.45f, 0.45f, 0.45f, TransitionAlpha)); //darker than the clear color
+			DrawRectangles(m_BackgroundBlocks, spriteBatch, BackgroundColor); //darker than the clear color
 
 			//draw the lighter rectangles
-			DrawRectangles(m_ForegroundBlocks, spriteBatch, new Color(0.5f, 0.5f, 0.5f, TransitionAlpha)); //the clear color
-
-			ScreenManager.SpriteBatchEnd();
+			DrawRectangles(m_ForegroundBlocks, spriteBatch, ForegroundColor); //the clear color
 		}
 
 		#endregion //Update and Draw
@@ -163,23 +159,21 @@ namespace RoboJets
 
 		private BackgroundBlock RandomBlock()
 		{
-			BackgroundBlock myBlock = new BackgroundBlock();
-
-			//create a random rectangle that fits in the screen
+			//create a random rectangle that fits in the border
 
 			//get a width & height between min and max
-			myBlock.m_Rect.Width = (m_iMinBlockWidth + (g_Random.Next() % m_iMaxBlockWidth));
-			myBlock.m_Rect.Height = (m_iMinBlockHeight + (g_Random.Next() % m_iMaxBlockHeight));
+			int width = g_Random.Next(MinBlockWidth, MaxBlockWidth);
+			int height = g_Random.Next(MinBlockHeight, MaxBlockHeight);
 
 			//get a start x & y between 0 and screen size - maxes
-			myBlock.m_Rect.X = m_View.X + (g_Random.Next() % (m_View.Width - m_iMaxBlockWidth));
-			myBlock.m_Rect.Y = m_View.Y + (g_Random.Next() % (m_View.Height - m_iMaxBlockHeight));
-			myBlock.m_fPosition = (float)myBlock.m_Rect.Y;
+			int x = g_Random.Next(Border.Left, Border.Right - width);
+			int y = g_Random.Next(Border.Top, Border.Bottom - height);
 
 			//create a random movement vector
-			myBlock.m_fDirection = ((g_Random.Next() % 2) == 0) ? RandomSpeed() : -RandomSpeed();
+			Vector2 dir = RandomSpeed();
 
-			return myBlock;
+			//create the random block
+			return new BackgroundBlock(new Rectangle(x, y, width, height), dir);
 		}
 
 		/// <summary>
@@ -189,42 +183,52 @@ namespace RoboJets
 		private void UpdateRectangles(List<BackgroundBlock> rRectangleList, GameTime CurrentTime)
 		{
 			//update rectangle positions
-			float fMilliseconds = CurrentTime.ElapsedGameTime.Milliseconds;
-			float fTimeDelta = (fMilliseconds / 1000.0f);
 			for (int i = 0; i < rRectangleList.Count; i++)
 			{
 				BackgroundBlock myBlock = rRectangleList[i];
-				myBlock.m_fPosition += myBlock.m_fDirection * fTimeDelta;
-				myBlock.m_Rect.Y = (int)myBlock.m_fPosition;
 
-				//if rectangle position is outside screen, create new rectanlge inside screen
-				if (((myBlock.Rect.Y + myBlock.Rect.Height) < m_View.X) ||
-					(myBlock.Rect.Y > m_View.Height))
+				//if rectangle position is outside screen, wrap around the border
+				if (myBlock.Rect.Top >= Border.Bottom)
 				{
-					rRectangleList[i] = RandomBlock();
-					myBlock = rRectangleList[i];
+					//move to the top of the screen
+					myBlock.Y = Border.Top - myBlock.Rect.Height;
+				}
+				else if (myBlock.Rect.Bottom < Border.Top)
+				{
+					//move to the bottom of the screen
+					myBlock.Y = Border.Bottom;
+				}
 
-					if (0 == (g_Random.Next() % 2))
-					{
-						//start at top
-						myBlock.m_Rect.Y = (m_View.Y + 1) - myBlock.m_Rect.Height;
-						myBlock.m_fPosition = (float)myBlock.m_Rect.Y;
-						myBlock.m_fDirection = RandomSpeed();
-					}
-					else
-					{
-						//start at bottom
-						myBlock.m_Rect.Y = m_View.Height - 1;
-						myBlock.m_fPosition = (float)myBlock.m_Rect.Y;
-						myBlock.m_fDirection = -RandomSpeed();
-					}
+				if (myBlock.Rect.Left >= Border.Right)
+				{
+					//move to the left of the screen
+					myBlock.X = Border.Left - myBlock.Rect.Width;
+				}
+				else if (myBlock.Rect.Right < Border.Left)
+				{
+					//move to the right of the screen
+					myBlock.X = Border.Right;
 				}
 			}
 		}
 
-		private float RandomSpeed()
+		private Vector2 RandomSpeed()
 		{
-			return (30.0f + (float)(g_Random.Next() % 70));
+			Vector2 dir = g_Random.NextVector2(MinAbsSpeed, MaxAbsSpeed, MinAbsSpeed, MaxAbsSpeed);
+
+			//flip the x direction?
+			if ((g_Random.Next() % 2) == 0)
+			{
+				dir.X *= -1;
+			}
+
+			//flip the y direction?
+			if ((g_Random.Next() % 2) == 0)
+			{
+				dir.Y *= -1;
+			}
+
+			return dir;
 		}
 
 		/// <summary>
@@ -236,7 +240,7 @@ namespace RoboJets
 		{
 			foreach (BackgroundBlock myRect in rRectangleList)
 			{
-				spriteBatch.Draw(ScreenManager.BlankTexture, myRect.m_Rect, RectColor);
+				spriteBatch.Draw(m_Pixel, myRect.Rect, RectColor);
 			}
 		}
 
