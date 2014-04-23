@@ -38,27 +38,27 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="..\..\Source\BackgroundBlock.cs">
+    <Compile Include="..\Source\BackgroundBlock.cs">
       <Link>BackgroundBlock.cs</Link>
     </Compile>
-    <Compile Include="..\..\Source\RectBackground.cs">
+    <Compile Include="..\Source\RectBackground.cs">
       <Link>RectBackground.cs</Link>
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\externals\GameTimer\Windows\GameTimer.Windows.csproj">
+    <ProjectReference Include="..\..\GameTimer\Windows\GameTimer.Windows.csproj">
       <Project>{6b6d4188-5c03-4e16-923b-96fdbc85b91a}</Project>
       <Name>GameTimer.Windows</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\externals\MonoGame\MonoGame.Framework\MonoGame.Framework.WindowsGL.csproj">
+    <ProjectReference Include="..\..\MonoGame\MonoGame.Framework\MonoGame.Framework.WindowsGL.csproj">
       <Project>{7de47032-a904-4c29-bd22-2d235e8d91ba}</Project>
       <Name>MonoGame.Framework.WindowsGL</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\externals\RandomExtensions\Windows\RandomExtensions.Windows.csproj">
+    <ProjectReference Include="..\..\RandomExtensions\Windows\RandomExtensions.Windows.csproj">
       <Project>{f0bba30f-66e1-4e2f-bdf6-e17ff317c34e}</Project>
       <Name>RandomExtensions.Windows</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\externals\Vector2Extensions\Windows\Vector2Extensions.Windows.csproj">
+    <ProjectReference Include="..\..\Vector2Extensions\Windows\Vector2Extensions.Windows.csproj">
       <Project>{2c5acada-d15a-4193-ba0a-d36a362075f4}</Project>
       <Name>Vector2Extensions.Windows</Name>
     </ProjectReference>
