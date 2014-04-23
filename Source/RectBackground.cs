@@ -76,15 +76,15 @@ namespace ShiftingRectangles
 		/// Constructor.
 		/// </summary>
 		public RectBackground(Rectangle border,
-			int maxBlocks, 
-			int minWidth, 
-			int maxWidth, 
-			int minHeight, 
-			int maxHeight, 
-			float minAbsSpeed, 
-			float maxAbsSpeed,
 			Color background,
-			Color foreground)
+			Color foreground,
+			int maxBlocks = 80, 
+			int minWidth = 30, 
+			int maxWidth = 100, 
+			int minHeight = 20, 
+			int maxHeight = 80, 
+			float minAbsSpeed = 30, 
+			float maxAbsSpeed = 40)
 		{
 			m_BackgroundBlocks = new List<BackgroundBlock>();
 			m_ForegroundBlocks = new List<BackgroundBlock>();
@@ -102,14 +102,6 @@ namespace ShiftingRectangles
 			MaxAbsSpeed = maxAbsSpeed;
 
 			Velocity = Vector2.Zero;
-
-			//MaxNumBlocks = 80;
-			//MinBlockWidth = 30;
-			//MaxBlockWidth = 100;
-			//MinBlockHeight = 20;
-			//MaxBlockHeight = 80;
-			//MinSpeed = 30;
-			//MaxSpeed = 40;
 		}
 
 		/// <summary>
@@ -159,7 +151,7 @@ namespace ShiftingRectangles
 		/// <summary>
 		/// Draws the background screen.
 		/// </summary>
-		public void Draw(SpriteBatch spriteBatch, GameTime gameTime)
+		public void Draw(SpriteBatch spriteBatch)
 		{
 			//draw the dark rectangles
 			DrawRectangles(m_BackgroundBlocks, spriteBatch, BackgroundColor); //darker than the clear color

@@ -11,7 +11,7 @@ namespace ShiftingRectangles
 	/// <summary>
 	/// little struct for managing the rectangles and their movement
 	/// </summary>
-	public class BackgroundBlock
+	internal class BackgroundBlock
 	{
 		#region Fields
 
