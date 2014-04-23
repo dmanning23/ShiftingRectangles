@@ -79,12 +79,12 @@ namespace ShiftingRectangles
 			Color background,
 			Color foreground,
 			int maxBlocks = 80, 
-			int minWidth = 30, 
-			int maxWidth = 100, 
-			int minHeight = 20, 
-			int maxHeight = 80, 
-			float minAbsSpeed = 30, 
-			float maxAbsSpeed = 40)
+			int minWidth = 50, 
+			int maxWidth = 128, 
+			int minHeight = 50, 
+			int maxHeight = 128, 
+			float minAbsSpeed = 60, 
+			float maxAbsSpeed = 80)
 		{
 			m_BackgroundBlocks = new List<BackgroundBlock>();
 			m_ForegroundBlocks = new List<BackgroundBlock>();
